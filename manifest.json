@@ -1,0 +1,9 @@
+{
+  "name": "Viyora Sales Entry",
+  "short_name": "Viyora",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "icons": []
+}
