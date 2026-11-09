@@ -1,6 +1,418 @@
+<!DOCTYPE html>
+<html>
 
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>House of Viyora - Sales Entry</title>
+  <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100%; background: #f1f3f7; color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .app-container { width: 100%; min-height: 100vh; padding: 16px 12px 60px 12px; display: flex; flex-direction: column; }
+    .app-header { width: 100%; text-align: center; padding: 6px 0 18px 0; }
+    .logo { display: block; width: 70px; height: 70px; object-fit: cover; border-radius: 50%; margin: 0 auto 12px auto; box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 3px solid #ffffff; }
+    .brand-name { font-size: 15px; font-weight: 900; color: #090d16; }
+    .page-title { font-size: 13px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+    .card { width: 100%; background: #ffffff; border-radius: 20px; padding: 18px 16px; margin-bottom: 16px; box-shadow: 0 3px 16px rgba(0, 0, 0, 0.05); border: 1.5px solid #e2e8f0; }
+    textarea { display: block; width: 100%; height: 120px; padding: 16px; border: 2px solid #cbd5e1; border-radius: 16px; background: #f8fafc; color: #0f172a; font-family: monospace; font-size: 18px; font-weight: 700; outline: none; resize: vertical; }
+    .live-calc-box { margin-top: 14px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 14px; }
+    .live-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .live-item-title { font-weight: 800; color: #0f172a; }
+    .live-item-sub { font-size: 12px; color: #64748b; font-weight: 600; }
+    .live-item-price { font-weight: 900; color: #15803d; }
+    .live-total-bar { margin-top: 10px; padding-top: 10px; border-top: 2px dashed #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 16px; }
+    button { display: block; width: 100%; min-height: 54px; margin-top: 14px; padding: 14px 16px; border: 0; border-radius: 16px; font-family: inherit; font-size: 17px; font-weight: 900; cursor: pointer; text-align: center; }
+    .confirm { background: #15803d; color: #ffffff; box-shadow: 0 5px 16px rgba(21, 128, 61, 0.25); }
+    .secondary { background: #e2e8f0; color: #1e293b; }
+    .error { width: 100%; display: none; margin-bottom: 16px; padding: 16px; border-radius: 14px; background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; font-size: 15px; font-weight: 700; }
+    .loading { display: none; width: 100%; padding: 18px; text-align: center; color: #0f172a; font-size: 18px; font-weight: 800; }
+    .hidden { display: none !important; }
+    .final-bill-box { width: 100%; margin-top: 16px; padding: 16px; border-radius: 16px; background: #f0fdf4; border: 2px solid #86efac; }
+    .final-bill-input { display: block; width: 100%; height: 54px; padding: 10px 14px; border: 2.5px solid #22c55e; border-radius: 14px; background: #ffffff; color: #0f172a; font-size: 22px; font-weight: 900; outline: none; }
+    .discount-badge { margin-top: 10px; font-size: 13px; color: #15803d; font-weight: 800; }
+    .success { text-align: center; font-size: 17px; font-weight: 800; color: #15803d; }
+    .success .big { margin: 12px 0 20px 0; font-size: 24px; font-weight: 900; color: #0f172a; }
+    .success-item { padding: 12px 0; border-bottom: 1.5px solid #f1f5f9; text-align: left; font-size: 14px; color: #334155; }
+    
+    /* Side-by-side Number Lock */
+    .sales-entry-split { display: flex; gap: 12px; align-items: stretch; margin-bottom: 16px; }
+    .split-half { flex: 1; display: flex; flex-direction: column; }
+    .lock-wheel-card { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 16px; padding: 12px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+    .lock-body { display: flex; gap: 4px; height: 120px; margin-bottom: 8px; }
+    .lock-wheel-wrapper { position: relative; flex: 1; height: 100%; background: #ffffff; border-radius: 10px; border: 1.5px solid #cbd5e1; overflow: hidden; }
+    .lock-lens { position: absolute; top: 30px; left: 0; right: 0; height: 60px; background: rgba(15, 23, 42, 0.05); border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a; pointer-events: none; z-index: 2; }
+    .lock-col { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; z-index: 1; }
+    .lock-col::-webkit-scrollbar { display: none; }
+    .lock-spacer { height: 30px; }
+    .lock-item { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #94a3b8; scroll-snap-align: center; }
+    .lock-item.selected { color: #0f172a; font-size: 18px; font-weight: 900; }
+    .btn-lock-add { width: 100%; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 900; cursor: pointer; min-height: 38px; }
+  </style>
+</head>
 
+<body>
+<div class="app-container">
+  <div class="app-header">
+    <img class="logo" src="https://i.postimg.cc/qqZRRLBQ/IMG-3743.jpg" alt="House of Viyora">
+    <div class="brand-name">House of Viyora</div>
+    <div class="page-title">Sales Entry (Standalone App)</div>
+  </div>
+
+  <div id="error" class="error"></div>
+  <div id="loading" class="loading">⏳ Syncing with Google Sheets…</div>
+
+  <div id="entryCard" class="card">
+    <!-- Customer Tabs -->
+    <div style="margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0; font-size: 12px; font-weight: 800;">SELECT CUSTOMER TAB</label>
+        <button type="button" onclick="addNewCustomerTab()" style="min-height: 32px; width: auto; margin-top: 0; padding: 4px 12px; font-size: 12px; background:#f4f1ea; color: #2b231f; border: 2px dashed #c28b5e">+ New Customer</button>
+      </div>
+      <div id="tabContainer" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px;"></div>
+    </div>
+
+    <!-- Live Barcode Scanner Button -->
+    <button type="button" class="secondary" style="min-height: 48px; font-weight: 800; margin-bottom: 12px; border-radius: 12px;" onclick="startLiveScanner()">
+      📷 Start Live Camera Barcode Scanner
+    </button>
+    <div id="reader" style="width: 100%; margin-bottom: 12px; border-radius: 12px; overflow: hidden; display: none;"></div>
+
+    <div class="sales-entry-split">
+      <!-- Left: Text Area -->
+      <div class="split-half">
+        <textarea id="productInput" oninput="saveCurrentTabState(); calculateLiveTotal();" placeholder="Scanned or typed IDs..."></textarea>
+      </div>
+
+      <!-- Right: 4-Digit Number Lock Wheels -->
+      <div class="split-half">
+        <div class="lock-wheel-card">
+          <div class="lock-body">
+            <!-- Wheel 1 -->
+            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol1" onscroll="onLockScroll(1)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-item">A</div><div class="lock-item">B</div><div class="lock-item">C</div><div class="lock-item">D</div><div class="lock-item">E</div><div class="lock-item">F</div><div class="lock-item">G</div><div class="lock-item">H</div><div class="lock-item">I</div><div class="lock-item">J</div><div class="lock-item">K</div><div class="lock-item">L</div><div class="lock-item">M</div><div class="lock-item">N</div><div class="lock-item">O</div><div class="lock-item">P</div><div class="lock-item">Q</div><div class="lock-item">R</div><div class="lock-item">S</div><div class="lock-item">T</div><div class="lock-item">U</div><div class="lock-item">V</div><div class="lock-item">W</div><div class="lock-item">X</div><div class="lock-item">Y</div><div class="lock-item">Z</div><div class="lock-spacer"></div></div></div>
+            <!-- Wheel 2 -->
+            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol2" onscroll="onLockScroll(2)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-spacer"></div></div></div>
+            <!-- Wheel 3 -->
+            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol3" onscroll="onLockScroll(3)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-spacer"></div></div></div>
+            <!-- Wheel 4 -->
+            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol4" onscroll="onLockScroll(4)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-spacer"></div></div></div>
+          </div>
+          <button type="button" class="btn-lock-add" onclick="appendLockCode()">+ Add Code</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Calculation Breakdown -->
+    <div id="liveCalcBox" class="live-calc-box hidden">
+      <div id="liveItemsList"></div>
+      <div class="live-total-bar">
+        <span>Subtotal (<span id="liveTotalQty">0</span> items)</span>
+        <span id="liveTotalSum" class="live-item-price">₹0.00</span>
+      </div>
+    </div>
+
+    <!-- Final Billing Section -->
+    <div id="billingSection" class="final-bill-box hidden">
+      <label for="finalBillInput" style="font-size: 13px; font-weight: 800; color: #166534; margin-bottom: 8px; display: block;">FINAL AMOUNT PAID BY CUSTOMER (₹)</label>
+      <input type="number" class="final-bill-input" id="finalBillInput" min="0" step="0.01" inputmode="decimal" oninput="handleManualPaidInput();">
+      <div class="discount-badge" id="discountBadge">No Discount Applied</div>
+    </div>
+
+    <button id="confirmAllBtn" class="confirm hidden" style="margin-top: 16px;" onclick="directConfirmSale()">✓ CONFIRM & RECORD SALE</button>
+  </div>
+
+  <!-- Success Card -->
+  <div id="successCard" class="card hidden">
+    <div class="success">
+      <div>✅ SALE RECORDED</div>
+      <div id="successSummary" class="big"></div>
+      <div id="successItems"></div>
+    </div>
+    <button class="secondary" onclick="newSale()">+ NEXT SALE</button>
+  </div>
+</div>
+
+<script>
+  // MAIN GOOGLE APPS SCRIPT WEB APP URL
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcLo0PJ244tdAD4jItQrm6gWdVYm-Ttv2U0GSjnA__FlNoJ8UQV3RtrUfQqeBUSFu2Fg/exec";
+
+  let LOCAL_INVENTORY = {};
+  let customerTabs = [{ id: 1, name: 'Customer 1', input: '', customPaid: null }];
+  let activeTabId = 1;
+
+  function money(n) {
+    return '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function showError(message) {
+    const el = document.getElementById('error');
+    if (el) {
+      el.textContent = message || 'Something went wrong.';
+      el.style.display = 'block';
+    }
+  }
+
+  function clearError() {
+    const el = document.getElementById('error');
+    if (el) {
+      el.style.display = 'none';
+    }
+  }
+
+  function loadLocalInventory() {
+    // MAIN GOOGLE SPREADSHEET ID & CSV FETCH
+    const SPREADSHEET_ID = "1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI";
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&t=` + Date.now();
+
+    fetch(csvUrl, { cache: "no-store" })
+      .then(res => {
+        if (!res.ok) throw new Error("HTTP Status: " + res.status);
+        return res.text();
+      })
+      .then(csvText => {
+        if (!csvText || csvText.trim().startsWith("<!DOCTYPE html>")) {
+          throw new Error("Sheet access blocked. Check sharing permissions ('Anyone with the link').");
+        }
+
+        LOCAL_INVENTORY = {};
+        const lines = csvText.split(/\r\n|\n/);
+
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+          const productId = row[1] ? row[1].replace(/["']/g, "").trim().toUpperCase() : "";
+          const name = row[2] ? row[2].replace(/["']/g, "").trim() : "";
+          const selling = parseFloat(row[7]?.replace(/["'₹,\s]/g, "")) || 0;
+          const stock = parseInt(row[8]?.replace(/["'\s]/g, "")) || 0;
+          const image = row[10] ? row[10].replace(/["']/g, "").trim() : "";
+
+          if (productId) {
+            const itemObj = {
+              productId: productId,
+              code: productId,
+              name: name || productId,
+              selling: selling,
+              price: selling,
+              stock: stock,
+              qty: stock,
+              image: image
+            };
+            LOCAL_INVENTORY[productId] = itemObj;
+          }
+        }
+
+        const totalItems = Object.keys(LOCAL_INVENTORY).length;
+        console.log("Successfully loaded inventory items:", totalItems);
+        
+        if (totalItems === 0) {
+          showError("CSV loaded, but 0 items were parsed. Check column index setup.");
+        } else {
+          clearError();
+        }
+
+        calculateLiveTotal();
+      })
+      .catch(err => {
+        console.error("Inventory fetch error:", err);
+        showError("Inventory Sync Error: " + err.message);
+      });
+  }
+
+  function findProductByInput(userInput) {
+    if (!userInput || !LOCAL_INVENTORY) return null;
+    let cleanInput = String(userInput).trim().toUpperCase();
+    if (LOCAL_INVENTORY[cleanInput]) return LOCAL_INVENTORY[cleanInput];
+    if (!isNaN(cleanInput) && cleanInput.length < 3) cleanInput = cleanInput.padStart(3, '0');
+    if (LOCAL_INVENTORY[cleanInput]) return LOCAL_INVENTORY[cleanInput];
+    
+    for (let key of Object.keys(LOCAL_INVENTORY)) {
+      if (key.endsWith("-" + cleanInput) || key.endsWith(cleanInput)) {
+        return LOCAL_INVENTORY[key];
+      }
+    }
+    return null;
+  }
+
+  function parseInput() {
+    const text = document.getElementById('productInput').value.trim();
+    if (!text) return [];
+    return text.split(/\n|,/).map(line => {
+      line = line.trim();
+      if (!line) return null;
+      let id = line, qty = 1;
+      const match = line.match(/^(.+?)\s*[xX*]\s*(\d+)$/);
+      if (match) { id = match[1].trim(); qty = Math.max(1, parseInt(match[2], 10)); }
+      return { id, qty };
+    }).filter(Boolean);
+  }
+
+  let currentOriginalSubtotal = 0;
+  function calculateLiveTotal() {
+    const text = document.getElementById('productInput').value.trim();
+    const liveBox = document.getElementById('liveCalcBox');
+    const liveList = document.getElementById('liveItemsList');
+    const billingSection = document.getElementById('billingSection');
+    const confirmBtn = document.getElementById('confirmAllBtn');
+    
+    let items = parseInput();
+    if (items.length === 0) {
+      liveBox.classList.add('hidden');
+      billingSection.classList.add('hidden');
+      confirmBtn.classList.add('hidden');
+      currentOriginalSubtotal = 0;
+      return;
+    }
+
+    liveBox.classList.remove('hidden');
+    billingSection.classList.remove('hidden');
+    confirmBtn.classList.remove('hidden');
+    liveList.innerHTML = '';
+
+    let totalQty = 0, totalSum = 0;
+    items.forEach(item => {
+      const product = findProductByInput(item.id);
+      totalQty += item.qty;
+      if (product) {
+        const itemTotal = Number(product.selling || product.price || 0) * item.qty;
+        totalSum += itemTotal;
+        liveList.innerHTML += `<div class="live-item-row"><div><div class="live-item-title">${product.name} (${item.qty}x)</div><div class="live-item-sub">ID: ${product.productId}</div></div><div class="live-item-price">${money(itemTotal)}</div></div>`;
+      } else {
+        liveList.innerHTML += `<div class="live-item-row"><div><div class="live-item-title" style="color:#b45309;">ID: ${item.id} (${item.qty}x)</div><div class="live-item-sub">Pending lookup</div></div><div class="live-item-price">--</div></div>`;
+      }
+    });
+
+    currentOriginalSubtotal = totalSum;
+    document.getElementById('liveTotalQty').textContent = totalQty;
+    document.getElementById('liveTotalSum').textContent = money(totalSum);
+
+    const billInput = document.getElementById('finalBillInput');
+    const activeTab = customerTabs.find(t => t.id === activeTabId);
+    if (activeTab && activeTab.customPaid !== null) {
+      billInput.value = activeTab.customPaid;
+    } else {
+      billInput.value = currentOriginalSubtotal;
+    }
+    calculateDiscount();
+  }
+
+  function handleManualPaidInput() {
+    const activeTab = customerTabs.find(t => t.id === activeTabId);
+    if (activeTab) activeTab.customPaid = document.getElementById('finalBillInput').value;
+    calculateDiscount();
+  }
+
+  function calculateDiscount() {
+    const paid = Number(document.getElementById('finalBillInput').value) || 0;
+    const discount = currentOriginalSubtotal - paid;
+    const badge = document.getElementById('discountBadge');
+    if (discount > 0) {
+      badge.textContent = 'Discount Given: ' + money(discount);
+      badge.style.color = '#15803d';
+    } else if (discount < 0) {
+      badge.textContent = 'Extra Charged: ' + money(-discount);
+      badge.style.color = '#b91c1c';
+    } else {
+      badge.textContent = 'No Discount Applied';
+      badge.style.color = '#64748b';
+    }
+  }
+
+  function directConfirmSale() {
+    const items = parseInput();
+    if (items.length === 0) { alert('List is empty!'); return; }
+    const totalPaid = Number(document.getElementById('finalBillInput').value);
+
+    document.getElementById('entryCard').classList.add('hidden');
+    document.getElementById('successCard').classList.remove('hidden');
+    document.getElementById('successSummary').textContent = money(totalPaid) + ' Collected';
+
+    // Send payload to Google Sheets backend
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'checkoutApp', items: items, totalPaid: totalPaid })
+    });
+  }
+
+  // Live Barcode Scanner
+  let scanner = null;
+  function startLiveScanner() {
+    document.getElementById('reader').style.display = 'block';
+    if (!scanner) scanner = new Html5Qrcode("reader");
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      decodedText => {
+        const val = decodedText.trim();
+        const el = document.getElementById('productInput');
+        el.value = el.value.trim() ? el.value + '\n' + val : val;
+        scanner.stop();
+        document.getElementById('reader').style.display = 'none';
+        calculateLiveTotal();
+      },
+      err => {}
+    );
+  }
+
+  // Number Lock Wheels logic
+  const lockChars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  let lockValues = { 1: '0', 2: '0', 3: '0', 4: '0' };
+  function onLockScroll(n) {
+    const col = document.getElementById('lockCol' + n);
+    const idx = Math.round(col.scrollTop / 60);
+    if (lockChars[idx]) {
+      lockValues[n] = lockChars[idx];
+      col.querySelectorAll('.lock-item').forEach((item, i) => item.classList.toggle('selected', i === idx));
+    }
+  }
+  function appendLockCode() {
+    const val = (lockValues[1] + lockValues[2] + lockValues[3] + lockValues[4]).replace(/^0+/, '') || '0';
+    const el = document.getElementById('productInput');
+    el.value = el.value.trim() ? el.value + '\n' + val : val;
+    calculateLiveTotal();
+  }
+
+  function saveCurrentTabState() {
+    const tab = customerTabs.find(t => t.id === activeTabId);
+    if (tab) tab.input = document.getElementById('productInput').value;
+  }
+
+  function addNewCustomerTab() {
+    saveCurrentTabState();
+    const newId = Date.now();
+    customerTabs.push({ id: newId, name: `Customer ${customerTabs.length + 1}`, input: '', customPaid: null });
+    switchTab(newId);
+  }
+
+  function switchTab(id) {
+    activeTabId = id;
+    const tab = customerTabs.find(t => t.id === activeTabId);
+    document.getElementById('productInput').value = tab ? tab.input : '';
+    calculateLiveTotal();
+  }
+
+  function newSale() {
+    document.getElementById('successCard').classList.add('hidden');
+    document.getElementById('entryCard').classList.remove('hidden');
+    document.getElementById('productInput').value = '';
+    calculateLiveTotal();
+  }
+
+  window.onload = () => { loadLocalInventory(); };
+</script>
+</body>
+</html>
