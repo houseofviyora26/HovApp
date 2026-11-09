@@ -176,7 +176,7 @@ function clearError() {
 function loadLocalInventory() {
   // Your Spreadsheet ID is correctly used here
   const SPREADSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // (Keep your actual ID here)
-  const csvUrl = `https://docs.google.com/spreadsheets/d/1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI//export?format=csv&t=` + Date.now();
+  const csvUrl = `https://docs.google.com/spreadsheets/d/1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI/export?format=csv&t=` + Date.now();
 
   fetch(csvUrl, { cache: "no-store" })
     .then(res => {
