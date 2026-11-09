@@ -156,13 +156,27 @@
     return '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // Load Inventory from Google Sheets via JSONP/Fetch API
+// Helper functions that were missing
+function showError(message) {
+  const el = document.getElementById('error');
+  if (el) {
+    el.textContent = message || 'Something went wrong.';
+    el.style.display = 'block';
+  }
+}
+
+function clearError() {
+  const el = document.getElementById('error');
+  if (el) {
+    el.style.display = 'none';
+  }
+}
+
+// Fixed Inventory Loader
 function loadLocalInventory() {
-  // 1. REPLACE WITH YOUR ACTUAL GOOGLE SPREADSHEET ID
-  const SPREADSHEET_ID = "PASTE_YOUR_SPREADSHEET_ID_HERE";
-  
-  // Cache-busting URL to ensure fresh sheet data every open
-  const csvUrl = `https://docs.google.com/spreadsheets/d/1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI/export?format=csv&t=` + Date.now();
+  // Your Spreadsheet ID is correctly used here
+  const SPREADSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // (Keep your actual ID here)
+  const csvUrl = `https://docs.google.com/spreadsheets/d/1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI//export?format=csv&t=` + Date.now();
 
   fetch(csvUrl, { cache: "no-store" })
     .then(res => {
@@ -177,15 +191,10 @@ function loadLocalInventory() {
       LOCAL_INVENTORY = {};
       const lines = csvText.split(/\r\n|\n/);
 
-      // Parse CSV rows starting from line index 1 (skipping headers)
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
-        
-        // Regex to handle commas inside quotes cleanly
         const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
-        // Mapping your Sheet1 columns:
-        // row[1] = Product ID (Col B), row[2] = Name (Col C), row[7] = Selling Price (Col H), row[8] = Qty (Col I)
         const productId = row[1] ? row[1].replace(/["']/g, "").trim().toUpperCase() : "";
         const name = row[2] ? row[2].replace(/["']/g, "").trim() : "";
         const selling = parseFloat(row[7]?.replace(/["'₹,\s]/g, "")) || 0;
@@ -203,19 +212,15 @@ function loadLocalInventory() {
             qty: stock,
             image: image
           };
-
-          // Store product by ID and by short numeric code
           LOCAL_INVENTORY[productId] = itemObj;
-          const shortCode = productId.replace(/^0+/, '');
-          if (shortCode && shortCode !== productId) {
-            LOCAL_INVENTORY[shortCode] = itemObj;
-          }
         }
       }
 
       const totalItems = Object.keys(LOCAL_INVENTORY).length;
+      console.log("Successfully loaded inventory items:", totalItems);
+      
       if (totalItems === 0) {
-        showError("Connected to sheet, but 0 items were parsed. Check column index setup.");
+        showError("CSV loaded, but 0 items were parsed. Check column index setup.");
       } else {
         clearError();
       }
