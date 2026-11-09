@@ -157,20 +157,40 @@
   }
 
   // Load Inventory from Google Sheets via JSONP/Fetch API
-  function loadLocalInventory() {
-    fetch(APPS_SCRIPT_URL + "?action=getInventory")
-      .then(res => res.json())
-      .then(data => {
-        LOCAL_INVENTORY = {};
-        if (data) {
-          Object.keys(data).forEach(key => {
-            LOCAL_INVENTORY[String(key).trim().toUpperCase()] = data[key];
-          });
+function loadLocalInventory() {
+  // REPLACE WITH YOUR ACTUAL GOOGLE SHEET ID FROM THE URL
+  const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
+  const csvUrl = `https://docs.google.com/spreadsheets/d/1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI/export?format=csv`;
+
+  fetch(csvUrl)
+    .then(res => res.text())
+    .then(csvText => {
+      LOCAL_INVENTORY = {};
+      const rows = csvText.split('\n');
+      
+      // Skip header row (start at i = 1)
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Handles commas inside quotes safely
+        if (row.length > 1) {
+          // Adjust these column indices based on your Sheet1 columns:
+          // Col B (index 1) = Product ID, Col C (index 2) = Name, Col H or I (index 7/8) = Selling Price, Col I (index 8) = Qty
+          const productId = row[1] ? row[1].replace(/["']/g, "").trim().toUpperCase() : "";
+          const name = row[2] ? row[2].replace(/["']/g, "").trim() : "";
+          const selling = parseFloat(row[7]?.replace(/["'₹,\s]/g, "")) || 0;
+          const stock = parseInt(row[8]?.replace(/["'\s]/g, "")) || 0;
+          const image = row[10] ? row[10].replace(/["']/g, "").trim() : "";
+
+          if (productId) {
+            const itemObj = { productId, name, selling, price: selling, stock, image };
+            LOCAL_INVENTORY[productId] = itemObj;
+          }
         }
-        calculateLiveTotal();
-      })
-      .catch(err => console.log("Inventory fetch error:", err));
-  }
+      }
+      console.log("Inventory loaded successfully:", Object.keys(LOCAL_INVENTORY).length, "items.");
+      calculateLiveTotal();
+    })
+    .catch(err => console.error("Failed to load inventory CSV:", err));
+}
 
   function findProductByInput(userInput) {
     if (!userInput || !LOCAL_INVENTORY) return null;
