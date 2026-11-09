@@ -162,7 +162,7 @@ function loadLocalInventory() {
   const SPREADSHEET_ID = "PASTE_YOUR_SPREADSHEET_ID_HERE";
   
   // Cache-busting URL to ensure fresh sheet data every open
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&t=` + Date.now();
+  const csvUrl = `https://docs.google.com/spreadsheets/d/1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI/export?format=csv&t=` + Date.now();
 
   fetch(csvUrl, { cache: "no-store" })
     .then(res => {
