@@ -158,63 +158,73 @@
 
   // Load Inventory from Google Sheets via JSONP/Fetch API
 function loadLocalInventory() {
-  // 1. PASTE YOUR ACTUAL SPREADSHEET ID HERE (the long string between /d/ and /edit in your URL)
-  const SPREADSHEET_ID = "PASTE_YOUR_ACTUAL_SHEET_ID_HERE";
+  // 1. REPLACE WITH YOUR ACTUAL GOOGLE SPREADSHEET ID
+  const SPREADSHEET_ID = "PASTE_YOUR_SPREADSHEET_ID_HERE";
   
-  if (SPREADSHEET_ID.includes("PASTE_")) {
-    showError("Please update SPREADSHEET_ID in index.html with your actual Google Sheet ID.");
-    return;
-  }
+  // Cache-busting URL to ensure fresh sheet data every open
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&t=` + Date.now();
 
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
-
-  fetch(csvUrl)
+  fetch(csvUrl, { cache: "no-store" })
     .then(res => {
-      if (!res.ok) throw new Error("HTTP error! Status: " + res.status);
+      if (!res.ok) throw new Error("HTTP Status: " + res.status);
       return res.text();
     })
     .then(csvText => {
-      // Check if Google returned a login HTML page instead of CSV
-      if (csvText.trim().startsWith("<!DOCTYPE html>") || csvText.includes("<html")) {
-        throw new Error("Google Sheet is not public! Set sharing to 'Anyone with the link can view'.");
+      if (!csvText || csvText.trim().startsWith("<!DOCTYPE html>")) {
+        throw new Error("Sheet access blocked. Check sharing permissions ('Anyone with the link').");
       }
 
       LOCAL_INVENTORY = {};
-      const rows = csvText.split('\n');
-      
-      console.log("CSV rows fetched:", rows.length);
+      const lines = csvText.split(/\r\n|\n/);
 
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        if (row.length > 1) {
-          // Adjust based on your Sheet1 columns:
-          // row[1] = Product ID (Col B), row[2] = Name (Col C), row[7] = Selling Price (Col H), row[8] = Qty (Col I)
-          const productId = row[1] ? row[1].replace(/["']/g, "").trim().toUpperCase() : "";
-          const name = row[2] ? row[2].replace(/["']/g, "").trim() : "";
-          const selling = parseFloat(row[7]?.replace(/["'₹,\s]/g, "")) || 0;
-          const stock = parseInt(row[8]?.replace(/["'\s]/g, "")) || 0;
-          const image = row[10] ? row[10].replace(/["']/g, "").trim() : "";
+      // Parse CSV rows starting from line index 1 (skipping headers)
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        
+        // Regex to handle commas inside quotes cleanly
+        const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
-          if (productId) {
-            LOCAL_INVENTORY[productId] = { productId, name, selling, price: selling, stock, image };
+        // Mapping your Sheet1 columns:
+        // row[1] = Product ID (Col B), row[2] = Name (Col C), row[7] = Selling Price (Col H), row[8] = Qty (Col I)
+        const productId = row[1] ? row[1].replace(/["']/g, "").trim().toUpperCase() : "";
+        const name = row[2] ? row[2].replace(/["']/g, "").trim() : "";
+        const selling = parseFloat(row[7]?.replace(/["'₹,\s]/g, "")) || 0;
+        const stock = parseInt(row[8]?.replace(/["'\s]/g, "")) || 0;
+        const image = row[10] ? row[10].replace(/["']/g, "").trim() : "";
+
+        if (productId) {
+          const itemObj = {
+            productId: productId,
+            code: productId,
+            name: name || productId,
+            selling: selling,
+            price: selling,
+            stock: stock,
+            qty: stock,
+            image: image
+          };
+
+          // Store product by ID and by short numeric code
+          LOCAL_INVENTORY[productId] = itemObj;
+          const shortCode = productId.replace(/^0+/, '');
+          if (shortCode && shortCode !== productId) {
+            LOCAL_INVENTORY[shortCode] = itemObj;
           }
         }
       }
 
-      const count = Object.keys(LOCAL_INVENTORY).length;
-      console.log("Successfully loaded inventory items:", count);
-      
-      if (count === 0) {
-        showError("CSV loaded, but 0 products found. Check column indices in loadLocalInventory().");
+      const totalItems = Object.keys(LOCAL_INVENTORY).length;
+      if (totalItems === 0) {
+        showError("Connected to sheet, but 0 items were parsed. Check column index setup.");
       } else {
         clearError();
       }
-      
+
       calculateLiveTotal();
     })
     .catch(err => {
-      console.error("Inventory fetch failed:", err);
-      showError("Inventory Load Error: " + err.message);
+      console.error("Inventory fetch error:", err);
+      showError("Inventory Sync Error: " + err.message);
     });
 }
   function findProductByInput(userInput) {
