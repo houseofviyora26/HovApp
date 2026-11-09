@@ -29,7 +29,9 @@
     .card { width: 100%; background: #ffffff; border-radius: 20px; padding: 18px 16px; margin-bottom: 16px; box-shadow: 0 3px 16px rgba(0, 0, 0, 0.05); border: 1.5px solid #e2e8f0; }
     textarea { display: block; width: 100%; height: 120px; padding: 16px; border: 2px solid #cbd5e1; border-radius: 16px; background: #f8fafc; color: #0f172a; font-family: monospace; font-size: 18px; font-weight: 700; outline: none; resize: vertical; }
     .live-calc-box { margin-top: 14px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 14px; }
-    .live-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .live-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .live-item-left { display: flex; align-items: center; gap: 10px; }
+    .live-item-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid #cbd5e1; background: #e2e8f0; flex-shrink: 0; }
     .live-item-title { font-weight: 800; color: #0f172a; }
     .live-item-sub { font-size: 12px; color: #64748b; font-weight: 600; }
     .live-item-price { font-weight: 900; color: #15803d; }
@@ -45,7 +47,6 @@
     .discount-badge { margin-top: 10px; font-size: 13px; color: #15803d; font-weight: 800; }
     .success { text-align: center; font-size: 17px; font-weight: 800; color: #15803d; }
     .success .big { margin: 12px 0 20px 0; font-size: 24px; font-weight: 900; color: #0f172a; }
-    .success-item { padding: 12px 0; border-bottom: 1.5px solid #f1f5f9; text-align: left; font-size: 14px; color: #334155; }
     
     /* Side-by-side Number Lock */
     .sales-entry-split { display: flex; gap: 12px; align-items: stretch; margin-bottom: 16px; }
@@ -60,6 +61,11 @@
     .lock-item { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #94a3b8; scroll-snap-align: center; }
     .lock-item.selected { color: #0f172a; font-size: 18px; font-weight: 900; }
     .btn-lock-add { width: 100%; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 900; cursor: pointer; min-height: 38px; }
+
+    /* Custom Item Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+    .modal-card { background: #ffffff; width: 100%; max-width: 400px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-input { width: 100%; height: 48px; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 16px; font-weight: 700; margin-bottom: 12px; outline: none; }
   </style>
 </head>
 
@@ -68,7 +74,7 @@
   <div class="app-header">
     <img class="logo" src="https://i.postimg.cc/qqZRRLBQ/IMG-3743.jpg" alt="House of Viyora">
     <div class="brand-name">House of Viyora</div>
-    <div class="page-title">Sales Entry (Standalone App)</div>
+    <div class="page-title">Sales Entry</div>
   </div>
 
   <div id="error" class="error"></div>
@@ -84,11 +90,23 @@
       <div id="tabContainer" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px;"></div>
     </div>
 
-    <!-- Live Barcode Scanner Button -->
-    <button type="button" class="secondary" style="min-height: 48px; font-weight: 800; margin-bottom: 12px; border-radius: 12px;" onclick="startLiveScanner()">
-      📷 Start Live Camera Barcode Scanner
-    </button>
-    <div id="reader" style="width: 100%; margin-bottom: 12px; border-radius: 12px; overflow: hidden; display: none;"></div>
+    <!-- Aesthetic Side-by-Side Action Buttons: Scanner & Custom Item -->
+    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+      <button type="button" class="secondary" style="flex: 1; margin-top: 0; min-height: 48px; font-weight: 800; border-radius: 12px; font-size: 14px;" onclick="startLiveScanner()">
+        📷 Scan QRcode
+      </button>
+      <button type="button" class="secondary" style="flex: 1; margin-top: 0; min-height: 48px; font-weight: 800; border-radius: 12px; font-size: 14px; background: #e2e8f0; color: #0f172a;" onclick="openCustomItemModal()">
+        ✨ + Custom Item
+      </button>
+    </div>
+
+    <!-- Live Barcode Scanner & Close Button -->
+    <div id="scannerWrapper" style="display: none; margin-bottom: 12px;">
+      <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden;"></div>
+      <button type="button" class="secondary" style="margin-top: 8px; min-height: 40px; background: #fee2e2; color: #991b1b; font-size: 14px;" onclick="stopLiveScanner()">
+        ✕ Close Camera Scanner
+      </button>
+    </div>
 
     <div class="sales-entry-split">
       <!-- Left: Text Area -->
@@ -114,7 +132,7 @@
       </div>
     </div>
 
-    <!-- Live Calculation Breakdown -->
+    <!-- Live Calculation Breakdown with Previews -->
     <div id="liveCalcBox" class="live-calc-box hidden">
       <div id="liveItemsList"></div>
       <div class="live-total-bar">
@@ -144,8 +162,21 @@
   </div>
 </div>
 
+<!-- Custom Item Modal -->
+<div id="customItemModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h3 style="margin-bottom: 12px; font-size: 18px; font-weight: 900;">Add Non-Tagged / Custom Item</h3>
+    <input type="text" id=" customItemName" class="modal-input" placeholder="Item Name (e.g., Custom Ring)">
+    <input type="number" id="customItemPrice" class="modal-input" placeholder="Selling Price (₹)" step="0.01">
+    <input type="text" id="customItemImage" class="modal-input" placeholder="Image URL (Optional)">
+    <div style="display: flex; gap: 10px; margin-top: 8px;">
+      <button type="button" class="secondary" style="flex: 1; margin-top: 0; min-height: 44px;" onclick="closeCustomItemModal()">Cancel</button>
+      <button type="button" class="confirm" style="flex: 1; margin-top: 0; min-height: 44px;" onclick="addCustomItemToCart()">Add Item</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // MAIN GOOGLE APPS SCRIPT WEB APP URL
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcLo0PJ244tdAD4jItQrm6gWdVYm-Ttv2U0GSjnA__FlNoJ8UQV3RtrUfQqeBUSFu2Fg/exec";
 
   let LOCAL_INVENTORY = {};
@@ -166,13 +197,10 @@
 
   function clearError() {
     const el = document.getElementById('error');
-    if (el) {
-      el.style.display = 'none';
-    }
+    if (el) el.style.display = 'none';
   }
 
   function loadLocalInventory() {
-    // MAIN GOOGLE SPREADSHEET ID & CSV FETCH
     const SPREADSHEET_ID = "1tS6jAnhR0JW-HFhal-9qS7VpleEooFpIgLGUyx_-gSI";
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&t=` + Date.now();
 
@@ -200,29 +228,19 @@
           const image = row[10] ? row[10].replace(/["']/g, "").trim() : "";
 
           if (productId) {
-            const itemObj = {
+            LOCAL_INVENTORY[productId] = {
               productId: productId,
               code: productId,
               name: name || productId,
               selling: selling,
               price: selling,
               stock: stock,
-              qty: stock,
               image: image
             };
-            LOCAL_INVENTORY[productId] = itemObj;
           }
         }
-
-        const totalItems = Object.keys(LOCAL_INVENTORY).length;
-        console.log("Successfully loaded inventory items:", totalItems);
-        
-        if (totalItems === 0) {
-          showError("CSV loaded, but 0 items were parsed. Check column index setup.");
-        } else {
-          clearError();
-        }
-
+        console.log("Loaded inventory items:", Object.keys(LOCAL_INVENTORY).length);
+        clearError();
         calculateLiveTotal();
       })
       .catch(err => {
@@ -261,13 +279,14 @@
 
   let currentOriginalSubtotal = 0;
   function calculateLiveTotal() {
-    const text = document.getElementById('productInput').value.trim();
     const liveBox = document.getElementById('liveCalcBox');
     const liveList = document.getElementById('liveItemsList');
     const billingSection = document.getElementById('billingSection');
     const confirmBtn = document.getElementById('confirmAllBtn');
     
     let items = parseInput();
+    renderTabs();
+
     if (items.length === 0) {
       liveBox.classList.add('hidden');
       billingSection.classList.add('hidden');
@@ -288,9 +307,30 @@
       if (product) {
         const itemTotal = Number(product.selling || product.price || 0) * item.qty;
         totalSum += itemTotal;
-        liveList.innerHTML += `<div class="live-item-row"><div><div class="live-item-title">${product.name} (${item.qty}x)</div><div class="live-item-sub">ID: ${product.productId}</div></div><div class="live-item-price">${money(itemTotal)}</div></div>`;
+        const thumbImg = product.image ? `<img src="${product.image}" class="live-item-thumb" alt="preview">` : `<div class="live-item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:#64748b;">No Img</div>`;
+        liveList.innerHTML += `
+          <div class="live-item-row">
+            <div class="live-item-left">
+              ${thumbImg}
+              <div>
+                <div class="live-item-title">${product.name} (${item.qty}x)</div>
+                <div class="live-item-sub">ID: ${product.productId}</div>
+              </div>
+            </div>
+            <div class="live-item-price">${money(itemTotal)}</div>
+          </div>`;
       } else {
-        liveList.innerHTML += `<div class="live-item-row"><div><div class="live-item-title" style="color:#b45309;">ID: ${item.id} (${item.qty}x)</div><div class="live-item-sub">Pending lookup</div></div><div class="live-item-price">--</div></div>`;
+        liveList.innerHTML += `
+          <div class="live-item-row">
+            <div class="live-item-left">
+              <div class="live-item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:#b45309;">Custom</div>
+              <div>
+                <div class="live-item-title" style="color:#b45309;">${item.id} (${item.qty}x)</div>
+                <div class="live-item-sub">Custom/Untagged item</div>
+              </div>
+            </div>
+            <div class="live-item-price">--</div>
+          </div>`;
       }
     });
 
@@ -339,19 +379,18 @@
     document.getElementById('successCard').classList.remove('hidden');
     document.getElementById('successSummary').textContent = money(totalPaid) + ' Collected';
 
-    // Send payload to Google Sheets backend
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'checkoutApp', items: items, totalPaid: totalPaid })
-    });
+    })
+    .catch(err => console.error("Sale sync error:", err));
   }
 
-  // Live Barcode Scanner
+  // Live Barcode Scanner with Close Button
   let scanner = null;
   function startLiveScanner() {
-    document.getElementById('reader').style.display = 'block';
+    document.getElementById('scannerWrapper').style.display = 'block';
     if (!scanner) scanner = new Html5Qrcode("reader");
     scanner.start(
       { facingMode: "environment" },
@@ -360,12 +399,64 @@
         const val = decodedText.trim();
         const el = document.getElementById('productInput');
         el.value = el.value.trim() ? el.value + '\n' + val : val;
-        scanner.stop();
-        document.getElementById('reader').style.display = 'none';
+        stopLiveScanner();
         calculateLiveTotal();
       },
       err => {}
-    );
+    ).catch(err => {
+      alert("Camera error: " + err);
+      stopLiveScanner();
+    });
+  }
+
+  function stopLiveScanner() {
+    if (scanner) {
+      scanner.stop().then(() => {
+        document.getElementById('scannerWrapper').style.display = 'none';
+      }).catch(err => {
+        document.getElementById('scannerWrapper').style.display = 'none';
+      });
+    } else {
+      document.getElementById('scannerWrapper').style.display = 'none';
+    }
+  }
+
+  // Custom Item Modal Logic
+  function openCustomItemModal() {
+    document.getElementById('customItemModal').classList.remove('hidden');
+  }
+  function closeCustomItemModal() {
+    document.getElementById('customItemModal').classList.add('hidden');
+    document.getElementById('customItemName').value = '';
+    document.getElementById('customItemPrice').value = '';
+    document.getElementById('customItemImage').value = '';
+  }
+  function addCustomItemToCart() {
+    const name = document.getElementById('customItemName').value.trim();
+    const price = parseFloat(document.getElementById('customItemPrice').value) || 0;
+    const image = document.getElementById('customItemImage').value.trim();
+
+    if (!name || price <= 0) {
+      alert('Please enter a valid item name and price.');
+      return;
+    }
+
+    const customId = 'CUSTOM-' + Date.now().toString().slice(-4);
+    LOCAL_INVENTORY[customId] = {
+      productId: customId,
+      code: customId,
+      name: name,
+      selling: price,
+      price: price,
+      stock: 999,
+      image: image
+    };
+
+    const el = document.getElementById('productInput');
+    el.value = el.value.trim() ? el.value + '\n' + customId : customId;
+    closeCustomItemModal();
+    saveCurrentTabState();
+    calculateLiveTotal();
   }
 
   // Number Lock Wheels logic
@@ -386,6 +477,7 @@
     calculateLiveTotal();
   }
 
+  // Multi-Customer Tabs Logic
   function saveCurrentTabState() {
     const tab = customerTabs.find(t => t.id === activeTabId);
     if (tab) tab.input = document.getElementById('productInput').value;
@@ -399,15 +491,33 @@
   }
 
   function switchTab(id) {
+    saveCurrentTabState();
     activeTabId = id;
     const tab = customerTabs.find(t => t.id === activeTabId);
     document.getElementById('productInput').value = tab ? tab.input : '';
     calculateLiveTotal();
   }
 
+  function renderTabs() {
+    const container = document.getElementById('tabContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    customerTabs.forEach(tab => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = tab.name + (tab.input.trim() ? ' *' : '');
+      const isActive = tab.id === activeTabId;
+      btn.style.cssText = `min-height: 36px; width: auto; margin-top: 0; padding: 6px 14px; font-size: 13px; font-weight: 800; border-radius: 10px; cursor: pointer; border: 2px solid ${isActive ? '#0f172a' : '#cbd5e1'}; background: ${isActive ? '#0f172a' : '#ffffff'}; color: ${isActive ? '#ffffff' : '#0f172a'}; white-space: nowrap; flex-shrink: 0;`;
+      btn.onclick = () => switchTab(tab.id);
+      container.appendChild(btn);
+    });
+  }
+
   function newSale() {
     document.getElementById('successCard').classList.add('hidden');
     document.getElementById('entryCard').classList.remove('hidden');
+    customerTabs = [{ id: Date.now(), name: 'Customer 1', input: '', customPaid: null }];
+    activeTabId = customerTabs[0].id;
     document.getElementById('productInput').value = '';
     calculateLiveTotal();
   }
