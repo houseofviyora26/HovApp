@@ -517,7 +517,7 @@
       { facingMode: "environment" },
       { fps: 10, qrbox: 250 },
       decodedText => {
-        const val = decodedText.trim();
+        const val = decodedText.split('|')[0].trim();
         const el = document.getElementById('productInput');
         el.value = el.value.trim() ? el.value + '\n' + val : val;
         stopLiveScanner();
