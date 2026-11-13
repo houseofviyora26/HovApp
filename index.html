@@ -51,7 +51,7 @@
     
     .success { text-align: center; font-size: 17px; font-weight: 800; color: #15803d; }
     .success .big { margin: 12px 0 20px 0; font-size: 24px; font-weight: 900; color: #0f172a; }
-    .photo-btn { background: #f4f1ea; border: 2.5px dashed #c28b5e; color: #2b231f; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 800; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 0; }
+    .photo-btn { background: #e2e8f0; border: 2.5px #c28b5e; color: #1e293b; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 800; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 0; }
     
     /* Layout split: Text area + Keypad */
     .sales-entry-split { display: flex-direction: column;flex; gap: 12px; align-items: stretch; margin-bottom: 16px; }
@@ -89,7 +89,7 @@
     <div style="margin-bottom: 16px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label style="margin-bottom: 0; font-size: 12px; font-weight: 800;">SELECT CUSTOMER TAB</label>
-        <button type="button" onclick="addNewCustomerTab()" style="min-height: 32px; width: auto; margin-top: 0; padding: 4px 12px; font-size: 12px; background:#f4f1ea; color: #2b231f; border: 2px dashed #c28b5e">+ New Customer</button>
+        <button type="button" class="secondary" onclick="addNewCustomerTab()" style="min-height: 32px; width: auto; margin-top: 0; padding: 4px 12px; font-size: 12px; border: 2px ">✚ New Customer</button>
       </div>
       <div id="tabContainer" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px;"></div>
     </div>
@@ -97,10 +97,10 @@
     <!-- Action Buttons Row: Scanner & Snap Photo -->
     <div style="display: flex; gap: 10px; margin-bottom: 12px;">
       <button type="button" class="secondary" style="flex: 1; margin-top: 0; min-height: 48px; font-weight: 800; border-radius: 12px; font-size: 14px;" onclick="startLiveScanner()">
-       ⛶ Scan QR
+       ⛶ QR
       </button>
       <label for="cameraInput" class="photo-btn" style="flex: 1;">
-        📸 SNAP
+        📸 Snap
       </label>
       <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="previewCapturedImage(event)">
     </div>
