@@ -27,7 +27,8 @@
     .brand-name { font-size: 15px; font-weight: 900; color: #090d16; }
     .page-title { font-size: 13px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
     .card { width: 100%; background: #ffffff; border-radius: 20px; padding: 18px 16px; margin-bottom: 16px; box-shadow: 0 3px 16px rgba(0, 0, 0, 0.05); border: 1.5px solid #e2e8f0; }
-    textarea { display: block; width: 100%; height: 120px; padding: 16px; border: 2px solid #cbd5e1; border-radius: 16px; background: #f8fafc; color: #0f172a; font-family: monospace; font-size: 18px; font-weight: 700; outline: none; resize: vertical; }
+    textarea { display: block; width: 100%; height: 130px; padding: 14px; border: 2px solid #cbd5e1; border-radius: 16px; background: #f8fafc; color: #0f172a; font-family: monospace; font-size: 18px; font-weight: 700; outline: none; resize: vertical; }
+    
     .live-calc-box { margin-top: 14px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 14px; }
     .live-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
     .live-item-left { display: flex; align-items: center; gap: 10px; }
@@ -36,32 +37,39 @@
     .live-item-sub { font-size: 12px; color: #64748b; font-weight: 600; }
     .live-item-price { font-weight: 900; color: #15803d; }
     .live-total-bar { margin-top: 10px; padding-top: 10px; border-top: 2px dashed #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 16px; }
+    
     button { display: block; width: 100%; min-height: 54px; margin-top: 14px; padding: 14px 16px; border: 0; border-radius: 16px; font-family: inherit; font-size: 17px; font-weight: 900; cursor: pointer; text-align: center; }
     .confirm { background: #15803d; color: #ffffff; box-shadow: 0 5px 16px rgba(21, 128, 61, 0.25); }
     .secondary { background: #e2e8f0; color: #1e293b; }
     .error { width: 100%; display: none; margin-bottom: 16px; padding: 16px; border-radius: 14px; background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; font-size: 15px; font-weight: 700; }
     .loading { display: none; width: 100%; padding: 18px; text-align: center; color: #0f172a; font-size: 18px; font-weight: 800; }
     .hidden { display: none !important; }
+    
     .final-bill-box { width: 100%; margin-top: 16px; padding: 16px; border-radius: 16px; background: #f0fdf4; border: 2px solid #86efac; }
     .final-bill-input { display: block; width: 100%; height: 54px; padding: 10px 14px; border: 2.5px solid #22c55e; border-radius: 14px; background: #ffffff; color: #0f172a; font-size: 22px; font-weight: 900; outline: none; }
     .discount-badge { margin-top: 10px; font-size: 13px; color: #15803d; font-weight: 800; }
+    
     .success { text-align: center; font-size: 17px; font-weight: 800; color: #15803d; }
     .success .big { margin: 12px 0 20px 0; font-size: 24px; font-weight: 900; color: #0f172a; }
     .photo-btn { background: #f4f1ea; border: 2.5px dashed #c28b5e; color: #2b231f; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 800; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 0; }
     
-    /* Side-by-side Number Lock */
+    /* Layout split: Text area + Keypad */
     .sales-entry-split { display: flex; gap: 12px; align-items: stretch; margin-bottom: 16px; }
     .split-half { flex: 1; display: flex; flex-direction: column; }
-    .lock-wheel-card { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 16px; padding: 12px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-    .lock-body { display: flex; gap: 4px; height: 120px; margin-bottom: 8px; }
-    .lock-wheel-wrapper { position: relative; flex: 1; height: 100%; background: #ffffff; border-radius: 10px; border: 1.5px solid #cbd5e1; overflow: hidden; }
-    .lock-lens { position: absolute; top: 30px; left: 0; right: 0; height: 60px; background: rgba(15, 23, 42, 0.05); border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a; pointer-events: none; z-index: 2; }
-    .lock-col { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; z-index: 1; }
-    .lock-col::-webkit-scrollbar { display: none; }
-    .lock-spacer { height: 30px; }
-    .lock-item { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #94a3b8; scroll-snap-align: center; }
-    .lock-item.selected { color: #0f172a; font-size: 18px; font-weight: 900; }
-    .btn-lock-add { width: 100%; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 900; cursor: pointer; min-height: 38px; }
+    
+    /* Keypad Card */
+    .keypad-card { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 16px; padding: 10px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+    
+    /* Horizontal Alphabet Scroller (Right to Left) */
+    .alpha-scroller { display: flex; gap: 6px; overflow-x: auto; direction: rtl; padding-bottom: 6px; margin-bottom: 8px; scrollbar-width: none; }
+    .alpha-scroller::-webkit-scrollbar { display: none; }
+    .alpha-btn { flex: 0 0 32px; height: 32px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 900; color: #0f172a; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .alpha-btn:active { background: #0f172a; color: #ffffff; }
+
+    /* Number Keypad Grid */
+    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .key-btn { background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; min-height: 40px; font-size: 16px; font-weight: 900; color: #0f172a; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .key-btn:active { background: #e2e8f0; }
   </style>
 </head>
 
@@ -70,7 +78,7 @@
   <div class="app-header">
     <img class="logo" src="https://i.postimg.cc/qqZRRLBQ/IMG-3743.jpg" alt="House of Viyora">
     <div class="brand-name">House of Viyora</div>
-    <div class="page-title">Sales Entry (Standalone App)</div>
+    <div class="page-title">Sales Entry</div>
   </div>
 
   <div id="error" class="error"></div>
@@ -89,10 +97,10 @@
     <!-- Action Buttons Row: Scanner & Snap Photo -->
     <div style="display: flex; gap: 10px; margin-bottom: 12px;">
       <button type="button" class="secondary" style="flex: 1; margin-top: 0; min-height: 48px; font-weight: 800; border-radius: 12px; font-size: 14px;" onclick="startLiveScanner()">
-        📷 Scan Barcode
+       ⛶ Scan QR
       </button>
       <label for="cameraInput" class="photo-btn" style="flex: 1;">
-        📸 SNAP PHOTO
+        📸 SNAP
       </label>
       <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="previewCapturedImage(event)">
     </div>
@@ -108,23 +116,57 @@
     <div class="sales-entry-split">
       <!-- Left: Text Area -->
       <div class="split-half">
-        <textarea id="productInput" oninput="saveCurrentTabState(); calculateLiveTotal();" placeholder="Scanned or typed IDs..."></textarea>
+        <textarea id="productInput" oninput="saveCurrentTabState(); calculateLiveTotal();" placeholder="Product IDs "></textarea>
       </div>
 
-      <!-- Right: 4-Digit Number Lock Wheels -->
+      <!-- Right: Alphabet Scroller + Phone Keypad -->
       <div class="split-half">
-        <div class="lock-wheel-card">
-          <div class="lock-body">
-            <!-- Wheel 1 -->
-            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol1" onscroll="onLockScroll(1)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-item">A</div><div class="lock-item">B</div><div class="lock-item">C</div><div class="lock-item">D</div><div class="lock-item">E</div><div class="lock-item">F</div><div class="lock-item">G</div><div class="lock-item">H</div><div class="lock-item">I</div><div class="lock-item">J</div><div class="lock-item">K</div><div class="lock-item">L</div><div class="lock-item">M</div><div class="lock-item">N</div><div class="lock-item">O</div><div class="lock-item">P</div><div class="lock-item">Q</div><div class="lock-item">R</div><div class="lock-item">S</div><div class="lock-item">T</div><div class="lock-item">U</div><div class="lock-item">V</div><div class="lock-item">W</div><div class="lock-item">X</div><div class="lock-item">Y</div><div class="lock-item">Z</div><div class="lock-spacer"></div></div></div>
-            <!-- Wheel 2 -->
-            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol2" onscroll="onLockScroll(2)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-spacer"></div></div></div>
-            <!-- Wheel 3 -->
-            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol3" onscroll="onLockScroll(3)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-spacer"></div></div></div>
-            <!-- Wheel 4 -->
-            <div class="lock-wheel-wrapper"><div class="lock-lens"></div><div class="lock-col" id="lockCol4" onscroll="onLockScroll(4)"><div class="lock-spacer"></div><div class="lock-item selected">0</div><div class="lock-item">1</div><div class="lock-item">2</div><div class="lock-item">3</div><div class="lock-item">4</div><div class="lock-item">5</div><div class="lock-item">6</div><div class="lock-item">7</div><div class="lock-item">8</div><div class="lock-item">9</div><div class="lock-spacer"></div></div></div>
+        <div class="keypad-card">
+          <!-- Horizontal Scrollable Alphabet Bar (Right to Left) -->
+          <div class="alpha-scroller">
+            <div class="alpha-btn" onclick="appendChar('Z')">Z</div>
+            <div class="alpha-btn" onclick="appendChar('Y')">Y</div>
+            <div class="alpha-btn" onclick="appendChar('X')">X</div>
+            <div class="alpha-btn" onclick="appendChar('W')">W</div>
+            <div class="alpha-btn" onclick="appendChar('V')">V</div>
+            <div class="alpha-btn" onclick="appendChar('U')">U</div>
+            <div class="alpha-btn" onclick="appendChar('T')">T</div>
+            <div class="alpha-btn" onclick="appendChar('S')">S</div>
+            <div class="alpha-btn" onclick="appendChar('R')">R</div>
+            <div class="alpha-btn" onclick="appendChar('Q')">Q</div>
+            <div class="alpha-btn" onclick="appendChar('P')">P</div>
+            <div class="alpha-btn" onclick="appendChar('O')">O</div>
+            <div class="alpha-btn" onclick="appendChar('N')">N</div>
+            <div class="alpha-btn" onclick="appendChar('M')">M</div>
+            <div class="alpha-btn" onclick="appendChar('L')">L</div>
+            <div class="alpha-btn" onclick="appendChar('K')">K</div>
+            <div class="alpha-btn" onclick="appendChar('J')">J</div>
+            <div class="alpha-btn" onclick="appendChar('I')">I</div>
+            <div class="alpha-btn" onclick="appendChar('H')">H</div>
+            <div class="alpha-btn" onclick="appendChar('G')">G</div>
+            <div class="alpha-btn" onclick="appendChar('F')">F</div>
+            <div class="alpha-btn" onclick="appendChar('E')">E</div>
+            <div class="alpha-btn" onclick="appendChar('D')">D</div>
+            <div class="alpha-btn" onclick="appendChar('C')">C</div>
+            <div class="alpha-btn" onclick="appendChar('B')">B</div>
+            <div class="alpha-btn" onclick="appendChar('A')">A</div>
           </div>
-          <button type="button" class="btn-lock-add" onclick="appendLockCode()">+ Add Code</button>
+
+          <!-- Numeric Keypad Grid (0-9) -->
+          <div class="keypad-grid">
+            <div class="key-btn" onclick="appendChar('1')">1</div>
+            <div class="key-btn" onclick="appendChar('2')">2</div>
+            <div class="key-btn" onclick="appendChar('3')">3</div>
+            <div class="key-btn" onclick="appendChar('4')">4</div>
+            <div class="key-btn" onclick="appendChar('5')">5</div>
+            <div class="key-btn" onclick="appendChar('6')">6</div>
+            <div class="key-btn" onclick="appendChar('7')">7</div>
+            <div class="key-btn" onclick="appendChar('8')">8</div>
+            <div class="key-btn" onclick="appendChar('9')">9</div>
+            <div class="key-btn" onclick="appendChar('0')">0</div>
+            <div class="key-btn" onclick="appendChar('\n')" style="background:#0f172a; color:#ffffff; font-size:13px;">↵ New</div>
+            <div class="key-btn" onclick="backspaceChar()" style="background:#fee2e2; color:#991b1b;">⌫</div>
+          </div>
         </div>
       </div>
     </div>
@@ -361,7 +403,7 @@
     const confirmBtn = document.getElementById('confirmAllBtn');
     
     let items = parseInput();
-    renderTabs();
+    saveCurrentTabState();
 
     if (items.length === 0 && capturedPhotos.length === 0) {
       liveBox.classList.add('hidden');
@@ -444,6 +486,7 @@
   function handleManualPaidInput() {
     const activeTab = customerTabs.find(t => t.id === activeTabId);
     if (activeTab) activeTab.customPaid = document.getElementById('finalBillInput').value;
+    saveCurrentTabState();
     calculateDiscount();
   }
 
@@ -481,11 +524,42 @@
     })
     .catch(err => console.error("Sale sync error:", err));
 
-    // Remove ONLY the checked-out tab so other customer tabs remain intact!
-    removeCurrentTab();
+    removeActiveTabAndSwitch();
   }
 
-  // Live Barcode Scanner with Close Button
+  // Keypad button actions
+  function appendChar(char) {
+    const el = document.getElementById('productInput');
+    el.focus();
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const val = el.value;
+    el.value = val.substring(0, start) + char + val.substring(end);
+    el.selectionStart = el.selectionEnd = start + char.length;
+    saveCurrentTabState();
+    calculateLiveTotal();
+  }
+
+  function backspaceChar() {
+    const el = document.getElementById('productInput');
+    el.focus();
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const val = el.value;
+    if (start > 0 || start !== end) {
+      if (start === end) {
+        el.value = val.substring(0, start - 1) + val.substring(end);
+        el.selectionStart = el.selectionEnd = start - 1;
+      } else {
+        el.value = val.substring(0, start) + val.substring(end);
+        el.selectionStart = el.selectionEnd = start;
+      }
+      saveCurrentTabState();
+      calculateLiveTotal();
+    }
+  }
+
+  // Live Barcode Scanner
   let scanner = null;
   function startLiveScanner() {
     document.getElementById('scannerWrapper').style.display = 'block';
@@ -519,37 +593,50 @@
     }
   }
 
-  // Number Lock Wheels logic
-  const lockChars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-  let lockValues = { 1: '0', 2: '0', 3: '0', 4: '0' };
-  function onLockScroll(n) {
-    const col = document.getElementById('lockCol' + n);
-    const idx = Math.round(col.scrollTop / 60);
-    if (lockChars[idx]) {
-      lockValues[n] = lockChars[idx];
-      col.querySelectorAll('.lock-item').forEach((item, i) => item.classList.toggle('selected', i === idx));
-    }
-  }
-  function appendLockCode() {
-    const val = (lockValues[1] + lockValues[2] + lockValues[3] + lockValues[4]).replace(/^0+/, '') || '0';
-    const el = document.getElementById('productInput');
-    el.value = el.value.trim() ? el.value + '\n' + val : val;
-    calculateLiveTotal();
-  }
-
-  // Multi-Customer Tabs Logic with State Isolation
+  // Multi-Customer Tabs Logic with Permanent State Persistence
   function saveCurrentTabState() {
     const tab = customerTabs.find(t => t.id === activeTabId);
     if (tab) {
-      tab.input = document.getElementById('productInput').value;
+      const inputEl = document.getElementById('productInput');
+      const billEl = document.getElementById('finalBillInput');
+      if (inputEl) tab.input = inputEl.value;
+      if (billEl && tab.customPaid !== null) tab.customPaid = billEl.value;
       tab.photos = JSON.parse(JSON.stringify(capturedPhotos));
     }
+    persistTabsToStorage();
+    renderTabs();
+  }
+
+  function persistTabsToStorage() {
+    try {
+      localStorage.setItem('vyora_tabs_state', JSON.stringify({
+        customerTabs: customerTabs,
+        activeTabId: activeTabId
+      }));
+    } catch(e) {}
+  }
+
+  function loadTabsFromStorage() {
+    try {
+      const saved = localStorage.getItem('vyora_tabs_state');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.customerTabs && parsed.customerTabs.length > 0) {
+          customerTabs = parsed.customerTabs;
+          const exists = customerTabs.some(t => t.id === parsed.activeTabId);
+          activeTabId = exists ? parsed.activeTabId : customerTabs[0].id;
+          return true;
+        }
+      }
+    } catch(e) {}
+    return false;
   }
 
   function addNewCustomerTab() {
     saveCurrentTabState();
     const newId = Date.now();
-    customerTabs.push({ id: newId, name: `Customer ${customerTabs.length + 1}`, input: '', photos: [], customPaid: null });
+    const nextNum = customerTabs.length > 0 ? Math.max(...customerTabs.map((t, idx) => idx + 1)) + 1 : 1;
+    customerTabs.push({ id: newId, name: `Customer ${nextNum}`, input: '', photos: [], customPaid: null });
     switchTab(newId);
   }
 
@@ -557,29 +644,51 @@
     saveCurrentTabState();
     activeTabId = id;
     const tab = customerTabs.find(t => t.id === activeTabId);
-    document.getElementById('productInput').value = tab ? tab.input : '';
-    capturedPhotos = tab && tab.photos ? JSON.parse(JSON.stringify(tab.photos)) : [];
+    if (!tab) return;
+
+    document.getElementById('productInput').value = tab.input || '';
+    capturedPhotos = tab.photos ? JSON.parse(JSON.stringify(tab.photos)) : [];
     renderPhotoGrid();
-    calculateLiveTotal();
+    persistTabsToStorage();
+    renderTabs();
+    
+    const liveBox = document.getElementById('liveCalcBox');
+    const billingSection = document.getElementById('billingSection');
+    const confirmBtn = document.getElementById('confirmAllBtn');
+    const items = parseInput();
+
+    if (items.length === 0 && capturedPhotos.length === 0) {
+      liveBox.classList.add('hidden');
+      billingSection.classList.add('hidden');
+      confirmBtn.classList.add('hidden');
+      currentOriginalSubtotal = 0;
+    } else {
+      calculateLiveTotal();
+    }
   }
 
-  function removeCurrentTab() {
+  function removeActiveTabAndSwitch() {
     customerTabs = customerTabs.filter(t => t.id !== activeTabId);
+
     if (customerTabs.length === 0) {
       customerTabs = [{ id: Date.now(), name: 'Customer 1', input: '', photos: [], customPaid: null }];
     }
+
     activeTabId = customerTabs[0].id;
+    persistTabsToStorage();
+    
     const tab = customerTabs[0];
     document.getElementById('productInput').value = tab.input || '';
     capturedPhotos = tab.photos ? JSON.parse(JSON.stringify(tab.photos)) : [];
     renderPhotoGrid();
-    calculateLiveTotal();
+    renderTabs();
   }
 
   function renderTabs() {
     const container = document.getElementById('tabContainer');
     if (!container) return;
     container.innerHTML = '';
+    
     customerTabs.forEach(tab => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -595,13 +704,22 @@
   function newSale() {
     document.getElementById('successCard').classList.add('hidden');
     document.getElementById('entryCard').classList.remove('hidden');
-    document.getElementById('productInput').value = '';
-    capturedPhotos = [];
-    renderPhotoGrid();
+    
+    if (customerTabs.length > 0) {
+      switchTab(customerTabs[0].id);
+    } else {
+      customerTabs = [{ id: Date.now(), name: 'Customer 1', input: '', photos: [], customPaid: null }];
+      activeTabId = customerTabs[0].id;
+      switchTab(activeTabId);
+    }
     calculateLiveTotal();
   }
 
-  window.onload = () => { loadLocalInventory(); };
+  window.onload = () => {
+    loadTabsFromStorage();
+    loadLocalInventory();
+    switchTab(activeTabId);
+  };
 </script>
 </body>
 </html>
